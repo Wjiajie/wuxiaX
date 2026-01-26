@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python .agent/skills/skill-creator/scripts/init_skill.py game-manager-skill --path .agent/skills)",
+      "Bash(set PYTHONUTF8=1)",
+      "Bash(python .agent/skills/game-manager-skill/scripts/persistence.py)",
+      "Bash(python .agent/skills/game-manager-skill/scripts/manager.py)",
+      "Bash(python -c \"import sys; sys.path.append\\(''.agent/skills/game-manager-skill/scripts''\\); from manager import execute_restart; print\\(execute_restart\\(\\)\\)\")",
+      "Bash(claude:*)",
+      "Bash(python:*)",
+      "WebSearch",
+      "mcp__sequential-thinking__sequentialthinking"
+    ]
+  }
+}

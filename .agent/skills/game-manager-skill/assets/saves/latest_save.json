@@ -1,0 +1,43 @@
+{
+    "timestamp": "2026-01-26T15:00:00",
+    "version": "1.3",
+    "protagonist": {
+        "name": "江未央",
+        "personality": {
+            "righteous": 92,
+            "unorthodox": 5,
+            "unrestrained": 40,
+            "reserved": 80,
+            "dominant": "正"
+        },
+        "attributes": {
+            "hp": 100,
+            "max_hp": 100,
+            "mp": 150,
+            "max_mp": 150,
+            "inner_power_type": "云影青莲气 (神兵洗礼版)"
+        },
+        "status": "剑心通明",
+        "location": "漱玉矶·溪畔周益墓前"
+    },
+    "party": [
+        {
+            "name": "何紫菀",
+            "relationship": 100,
+            "status": "伴侣/生死契阔"
+        }
+    ],
+    "world_state": {
+        "causality_chain": [
+            "CE-001", "CE-002", "CE-003", "CE-004", "CE-005", "CE-006", "CE-007", "CE-008", "CE-009", "CE-010", "CE-011", "CE-012", "CE-013", "CE-014", "CE-015", "CE-016", "CE-017"
+        ],
+        "plot_chapter": 29,
+        "active_quests": [
+            "圣堂之唤 (进行中)",
+            "苏氏传承 (感悟中)"
+        ],
+        "key_items": [
+            "圣堂青莲剑", "遂宁竹林残图", "洛书·天枢碎片"
+        ]
+    }
+}

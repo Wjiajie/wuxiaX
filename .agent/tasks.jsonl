@@ -1,0 +1,13 @@
+{"id":"task-1769301292-a272","title":"实现天外来客设定 - 圣堂意志逻辑集成","status":"closed","priority":2,"blocked_by":[],"created":"2026-01-25T00:34:52.500346300+00:00","closed":"2026-01-25T01:13:31.916612600+00:00"}
+{"id":"task-1769301304-3796","title":"实现河图洛书碎片追踪系统","status":"closed","priority":2,"blocked_by":["task-1769301292-a272"],"created":"2026-01-25T00:35:04.472989400+00:00","closed":"2026-01-25T01:18:20.670865400+00:00"}
+{"id":"task-1769301307-0968","title":"实现正邪狂狷四维人格判定系统","status":"closed","priority":1,"blocked_by":[],"created":"2026-01-25T00:35:07.461167800+00:00","closed":"2026-01-25T00:38:47.307740800+00:00"}
+{"id":"task-1769301310-e74a","title":"实现NPC动态关系网与队友互动系统","status":"closed","priority":2,"blocked_by":[],"created":"2026-01-25T00:35:10.255825700+00:00","closed":"2026-01-25T01:24:26.761802500+00:00"}
+{"id":"task-1769301315-2294","title":"补充30位队友核心剧情线设计","status":"open","priority":3,"blocked_by":[],"created":"2026-01-25T00:35:15.664220200+00:00"}
+{"id":"task-1769301318-236b","title":"实现原创诗词嵌入功能","status":"open","priority":2,"blocked_by":[],"created":"2026-01-25T00:35:18.336753900+00:00"}
+{"id":"task-1769301321-886e","title":"建立金庸典故融合库","status":"open","priority":2,"blocked_by":[],"created":"2026-01-25T00:35:21.034934900+00:00"}
+{"id":"task-1769301323-0d1d","title":"实现蝴蝶效应任务分支模块","status":"open","priority":1,"blocked_by":[],"created":"2026-01-25T00:35:23.986404400+00:00"}
+{"id":"task-1769439624-c859","title":"实现 story-prep-skill: 编写 Python 脚本自动检测主角、NPC 及环境状态","status":"open","priority":1,"blocked_by":[],"created":"2026-01-26T15:00:24.772189200+00:00"}
+{"id":"task-1769439624-4e81","title":"存档系统进化: 将 Skill 状态持久化存储到 SQLite","status":"open","priority":2,"blocked_by":[],"created":"2026-01-26T15:00:24.806531800+00:00"}
+{"id":"task-1769439624-d877","title":"读档与差异同步: 实现数据库与文件的双向同步","status":"open","priority":2,"blocked_by":[],"created":"2026-01-26T15:00:24.841850600+00:00"}
+{"id":"task-1769439624-60dc","title":"小说情节展示与全局检索: 实现 story-display-skill 及同步钩子","status":"open","priority":2,"blocked_by":[],"created":"2026-01-26T15:00:24.876767200+00:00"}
+{"id":"task-1769439624-e5e1","title":"CLAUDE.md 文档优化: 重构文档结构","status":"open","priority":3,"blocked_by":[],"created":"2026-01-26T15:00:24.910820100+00:00"}

@@ -1,0 +1,203 @@
+import os
+import json
+import re
+from pathlib import Path
+from datetime import datetime
+from persistence import save_game, load_game
+from memory import GameMemory
+
+class SkillRegistry:
+    """
+    功法名册：管理所有已登记的 Agent Skills 及其元数据。
+    """
+    def __init__(self, skills_dir):
+        self.skills_dir = skills_dir
+        self.registry = {}
+        self.load_registry()
+
+    def load_registry(self):
+        """扫描并加载所有技能的元数据"""
+        if not self.skills_dir.exists():
+            return
+        for skill_path in self.skills_dir.iterdir():
+            if skill_path.is_dir():
+                skill_md = skill_path / "SKILL.md"
+                if skill_md.exists():
+                    # 这里可以解析 YAML 元数据，暂时简单记录
+                    self.registry[skill_path.name] = {
+                        "path": skill_path,
+                        "references": [f.name for f in (skill_path / "references").glob("*.md")] if (skill_path / "references").exists() else [],
+                        "has_scripts": (skill_path / "scripts").exists()
+                    }
+
+    def get_skill(self, name):
+        return self.registry.get(name)
+
+class SkillManager:
+    """
+    造化主控：通过 SkillRegistry 动态管理所有 Agent Skills。
+    """
+    def __init__(self):
+        # __file__ 为 .../.agent/skills/game-manager-skill/scripts/manager.py
+        # .parent.parent.parent.parent 为 .agent 目录
+        # .parent.parent.parent.parent.parent 为项目根目录
+        self.base_dir = Path(__file__).parent.parent.parent.parent.parent
+        self.skills_dir = self.base_dir / ".agent" / "skills"
+        self.registry = SkillRegistry(self.skills_dir)
+        self.memory = GameMemory()
+        self.active_skills = self.registry.registry # 兼容旧接口
+
+    def get_skill_data(self, skill_name, reference_file):
+        """读取指定技能的参考数据内容"""
+        if skill_name not in self.active_skills:
+            return None
+
+        target_path = self.active_skills[skill_name]["path"] / "references" / reference_file
+        if target_path.exists():
+            return target_path.read_text(encoding="utf-8")
+        return None
+
+    def update_skill_data(self, skill_name, reference_file, new_content):
+        """落笔修改指定技能的参考数据，并记录变动至记忆"""
+        if skill_name not in self.active_skills:
+            print(f"错误：未发现功法 {skill_name}")
+            return False
+
+        ref_dir = self.active_skills[skill_name]["path"] / "references"
+        ref_dir.mkdir(parents=True, exist_ok=True)
+        target_path = ref_dir / reference_file
+
+        # 记录变动前的记忆（可选）
+        old_content = target_path.read_text(encoding="utf-8") if target_path.exists() else "（新创）"
+
+        target_path.write_text(new_content, encoding="utf-8")
+
+        # 铭刻变动记忆
+        self.memory.add_long_term(
+            "世界变动",
+            f"修改了 {skill_name} 的 {reference_file}",
+            f"旧貌：{old_content[:50]}... 新颜：{new_content[:50]}..."
+        )
+        return True
+
+    def take_global_snapshot(self):
+        """
+        遍览诸般功法，摄取当前世界所有 Skill 的状态快照。
+        """
+        snapshot = {
+            "skills": {},
+            "world_time": datetime.now().isoformat()
+        }
+        for skill_name, info in self.active_skills.items():
+            snapshot["skills"][skill_name] = {}
+            ref_dir = info["path"] / "references"
+            if ref_dir.exists():
+                for ref_file in ref_dir.glob("*.md"):
+                    content = ref_file.read_text(encoding="utf-8")
+                    snapshot["skills"][skill_name][ref_file.name] = content
+        
+        # 摄取短期记忆作为剧情衔接
+        snapshot["memory"] = {
+            "short_term": self.memory.short_term,
+            "last_log": self.memory.short_term[-1]["narrative"] if self.memory.short_term else ""
+        }
+        return snapshot
+
+    def apply_global_snapshot(self, snapshot):
+        """
+        万法归宗：将快照中的数据回写到各 Skill 的 references 目录（差异对比机制）。
+        """
+        if not snapshot or "skills" not in snapshot:
+            return False
+
+        print(">>> 正在核对世界线差异...")
+        for skill_name, files in snapshot["skills"].items():
+            for filename, content in files.items():
+                target_path = self.active_skills.get(skill_name, {}).get("path")
+                if target_path:
+                    target_file = target_path / "references" / filename
+                    # 差异判定
+                    if target_file.exists():
+                        current_content = target_file.read_text(encoding="utf-8")
+                        if current_content != content:
+                            print(f"检测到差异：{skill_name}/{filename}，正在同步至数据库版本。")
+                            self.update_skill_data(skill_name, filename, content)
+                    else:
+                        print(f"补全缺失文件：{skill_name}/{filename}")
+                        self.update_skill_data(skill_name, filename, content)
+        
+        # 恢复短期记忆
+        if "memory" in snapshot and "short_term" in snapshot["memory"]:
+            self.memory.short_term = snapshot["memory"]["short_term"]
+            
+        return True
+
+    def execute_full_save(self, chapter="未知", location="未知"):
+        """执行完整存档：抓取所有 Skill 状态并存入 SQLite 数据库"""
+        data = self.take_global_snapshot()
+        # 自动尝试从小模块提取位置
+        if location == "未知":
+            sheet = self.get_skill_data("protagonist-skill", "character_sheet.md")
+            loc_match = re.search(r"当前位置\*\*：(.*?)$", sheet, re.M) if sheet else None
+            location = loc_match.group(1) if loc_match else "未知"
+
+        return save_game(data, chapter=chapter, location=location)
+
+    def execute_full_load(self, save_id=None):
+        """执行完整读档：从本地数据库恢复数据并同步至各 Skill 目录"""
+        data = load_game(save_id)
+        if data:
+            return self.apply_global_snapshot(data)
+        return False
+
+    def trigger_global_sync(self):
+        """
+        全局同步钩子：章节结束后检索所有 Skill 是否需要更新。
+        目前主要是同步主角状态至记忆，可扩展。
+        """
+        print(">>> 正在触发全局同步校验...")
+        self.sync_protagonist_to_memory()
+        # 未来可根据剧情事件进一步驱动 NPC 状态更新
+        return True
+
+    def sync_protagonist_to_memory(self):
+        """将主角当前状态快照同步至记忆库"""
+        content = self.get_skill_data("protagonist-skill", "character_sheet.md")
+        if content:
+            # 简单的正则提取（实际可复用之前的解析函数）
+            hp_match = re.search(r"气血 \(HP\)\*\*：(\d+) / (\d+)", content)
+            location_match = re.search(r"当前位置\*\*：(.*?)$", content, re.M)
+
+            data = {
+                "hp": hp_match.group(1) if hp_match else "未知",
+                "location": location_match.group(1) if location_match else "未知",
+                "full_sheet": content
+            }
+            self.memory.save_entity_state("protagonist", data)
+
+    def process_story_event(self, event_type, description, impact_data=None):
+        """
+        根据剧情发展动态驱动技能数据修改。
+        event_type: 事件类型（如 'combat_result', 'travel', 'item_get'）
+        """
+        self.memory.add_short_term(description)
+
+        if event_type == "travel" and impact_data:
+            new_location = impact_data.get("location")
+            # 修改主角技能中的位置
+            sheet = self.get_skill_data("protagonist-skill", "character_sheet.md")
+            if sheet:
+                new_sheet = re.sub(r"- \*\*当前位置\*\*：(.*?)$", f"- **当前位置**：{new_location}", sheet, flags=re.M)
+                self.update_skill_data("protagonist-skill", "character_sheet.md", new_sheet)
+                self.memory.add_long_term("行踪", f"抵达了 {new_location}", description)
+
+if __name__ == "__main__":
+    gm = SkillManager()
+    # 测试：尝试读取主角卡
+    sheet = gm.get_skill_data("protagonist-skill", "character_sheet.md")
+    if sheet:
+        print("主角卡读取成功。")
+
+    # 测试：模拟一段剧情变动
+    gm.process_story_event("travel", "江未央穿过石窟裂缝，来到了隐秘的『桃花坞』。", {"location": "桃花坞"})
+    print("剧情变动已生效。")
