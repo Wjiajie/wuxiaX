@@ -45,6 +45,28 @@ description: 处理《河洛群侠传》MUD 文本江湖的空间节点系统（
 定义了人格、善恶、势力及奇遇的底层逻辑，确保世界运行符合武侠逻辑。
 见 [references/world_rules.md](references/world_rules.md)。
 
+## 5. 蝴蝶效应与因果联动 (Butterfly Effect & Causality)
+> **必须遵守 (Mandatory)**
+生成剧情内容**之前**，必须执行以下检查流程：
+1. **检索因果链**: 读取 `world-logic/references/causality_chain.md`，检查当前场景或涉及人物是否存在已种下的“蝴蝶之种”。
+2. **判定连锁反应**:
+   - 若当前剧情处于“风暴预警”范围，强制触发对应的分支情节。
+   - 根据历史抉择的“因果值”，调整当前互动的难度、报酬或NPC态度。
+3. **记录新种**: 玩家做出重大决策后，必须立即在 `causality_chain.md` 中新增记录，并标记为“已种下”。
+4. **变局触发**: 当全局“因果值”累积达到特定阈值（如50），在当前章节强制嵌入“江湖大变局”叙事。
+
+## 6. 河图洛书碎片触发规则 (Hetu Luoshu Triggers)
+> **必须遵守 (Mandatory)**
+当主角进入碎片所在区域时，必须执行以下检查流程：
+1. **位置匹配**: 检查当前位置是否为碎片分布点（参照 `references/spatial_nodes.md` 中的碎片分布总览）。
+2. **条件判定**: 验证主角是否满足该碎片的前置条件（装备、属性、任务进度等）。
+3. **碎片叙事**: 若满足条件，从 `story-engine/references/hetu_luoshu.md` 读取对应碎片的专属叙事模板。
+4. **状态更新**:
+   - 将碎片添加至 `character_sheet.md` 背包。
+   - 应用碎片属性加成。
+   - 更新 `hetu_luoshu.md` 中的收集状态。
+5. **线索生成**: 若主角持有【河图·乾位残片】，在相邻区域存在未收集碎片时，生成感应描述。
+
 ## 资源参考
 - [空间节点数据](references/spatial_nodes.md)
 - [时间事件逻辑](references/time_events.md)

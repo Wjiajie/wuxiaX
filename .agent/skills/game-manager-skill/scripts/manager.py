@@ -150,21 +150,66 @@ class SkillManager:
             return self.apply_global_snapshot(data)
         return False
 
+    def reset_game_state(self):
+        """
+        万象更新：重置游戏世界至初始状态。
+        1. 从 templates 目录还原 references。
+        2. 清空存档数据库。
+        3. 清空历史章节。
+        """
+        print(">>> 正在初始化江湖世界...")
+
+        # 1. 还原模板
+        for skill_name, info in self.active_skills.items():
+            template_dir = info["path"] / "templates"
+            if template_dir.exists():
+                for template_file in template_dir.glob("*.md"):
+                    content = template_file.read_text(encoding="utf-8")
+                    self.update_skill_data(skill_name, template_file.name, content)
+                    print(f"  - 已重置功法数据：{skill_name}/{template_file.name}")
+
+        # 2. 清空存档数据库
+        from persistence import DB_PATH
+        if DB_PATH.exists():
+            import sqlite3
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM game_saves")
+            conn.commit()
+            conn.close()
+            print("  - 已清除所有江湖存档。")
+
+        # 3. 清空历史章节
+        chapters_dir = self.base_dir / "history" / "chapters"
+        if chapters_dir.exists():
+            for chapter_file in chapters_dir.glob("*.txt"):
+                chapter_file.unlink()
+            print("  - 已粉碎所有历史残章。")
+
+        # 4. 重置记忆
+        self.memory.short_term = []
+        # 可以选择是否清空长期记忆数据库，目前保留
+        
+        print("\n>>> 江湖已重置，乾坤再启。")
+        return True
+
     def trigger_global_sync(self):
         """
         全局同步钩子：章节结束后检索所有 Skill 是否需要更新。
-        目前主要是同步主角状态至记忆，可扩展。
         """
         print(">>> 正在触发全局同步校验...")
-        self.sync_protagonist_to_memory()
-        # 未来可根据剧情事件进一步驱动 NPC 状态更新
+        if self.sync_protagonist_to_memory():
+            print("  - 主角[江未央]状态同步成功。")
+
+        # 可以在此扩展其他 NPC 或物品的同步逻辑
+        print("\n>>> 全局同步校验完成，江湖因果已锁定。")
         return True
 
     def sync_protagonist_to_memory(self):
         """将主角当前状态快照同步至记忆库"""
         content = self.get_skill_data("protagonist-skill", "character_sheet.md")
         if content:
-            # 简单的正则提取（实际可复用之前的解析函数）
+            # 提取核心数据用于记忆显示
             hp_match = re.search(r"气血 \(HP\)\*\*：(\d+) / (\d+)", content)
             location_match = re.search(r"当前位置\*\*：(.*?)$", content, re.M)
 
@@ -174,6 +219,9 @@ class SkillManager:
                 "full_sheet": content
             }
             self.memory.save_entity_state("protagonist", data)
+            print(f"  - 已捕捉神识快照：位置[{data['location']}] 气血[{data['hp']}]")
+            return True
+        return False
 
     def process_story_event(self, event_type, description, impact_data=None):
         """
@@ -192,12 +240,36 @@ class SkillManager:
                 self.memory.add_long_term("行踪", f"抵达了 {new_location}", description)
 
 if __name__ == "__main__":
-    gm = SkillManager()
-    # 测试：尝试读取主角卡
-    sheet = gm.get_skill_data("protagonist-skill", "character_sheet.md")
-    if sheet:
-        print("主角卡读取成功。")
+    import os
+    import sys
+    import io
+    # 强制设置 stdout 编码为 utf-8 以支持特殊字符和中文输出
+    if os.name == 'nt':
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-    # 测试：模拟一段剧情变动
-    gm.process_story_event("travel", "江未央穿过石窟裂缝，来到了隐秘的『桃花坞』。", {"location": "桃花坞"})
-    print("剧情变动已生效。")
+    import argparse
+    parser = argparse.ArgumentParser(description="游戏主控逻辑接口")
+    parser.add_argument("--reset", action="store_true", help="重置江湖世界至初始状态")
+    parser.add_argument("--sync", action="store_true", help="执行全局同步校验")
+    parser.add_argument("--save", action="store_true", help="执行全量存档")
+    parser.add_argument("--load", action="store_true", help="从最新存档读档")
+
+    args = parser.parse_args()
+    gm = SkillManager()
+
+    if args.reset:
+        gm.reset_game_state()
+    elif args.sync:
+        gm.trigger_global_sync()
+    elif args.save:
+        gm.execute_full_save()
+    elif args.load:
+        gm.execute_full_load()
+    else:
+        # 默认测试：尝试读取主角卡
+        sheet = gm.get_skill_data("protagonist-skill", "character_sheet.md")
+        if sheet:
+            print("主角卡读取成功。")
+        # 模拟一段剧情变动
+        # gm.process_story_event("travel", "江未央穿过石窟裂缝，来到了隐秘的『桃花坞』。", {"location": "桃花坞"})
+        # print("剧情变动测试完成。")

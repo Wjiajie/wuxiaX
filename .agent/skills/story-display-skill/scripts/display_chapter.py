@@ -25,18 +25,37 @@ def write_and_verify(chapter_num, content):
         return True, file_path
     return False, file_path
 
+import textwrap
+
 def display_native(file_path):
-    # 根据操作系统选择指令
-    if os.name == 'nt':  # Windows
-        # 优先使用 PowerShell 以支持 UTF-8 编码
-        try:
-            # 使用 -Raw 保证完整读取，-Encoding utf8 确保字符集正确
-            subprocess.run(["powershell", "-Command", f"Get-Content -Path '{file_path}' -Raw -Encoding utf8"], check=True)
-        except subprocess.CalledProcessError:
-            # 备选方案使用 type
+    # 直接在 Python 中读取并打印，以更好地处理编码
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            # 针对 Windows 环境，尝试强制输出为 utf-8
+            if os.name == 'nt':
+                import sys
+                import io
+                # 重新包装 stdout 以支持 utf-8 强制输出
+                sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+            # 为移动端优化：自动换行处理
+            # 考虑到中文字符宽度，设置较窄的换行宽度（如 25）
+            wrapped_content = ""
+            for line in content.splitlines():
+                if line.strip():
+                    wrapped_content += textwrap.fill(line, width=25) + "\n"
+                else:
+                    wrapped_content += "\n"
+
+            print(wrapped_content)
+    except Exception as e:
+        print(f"!!! 读取或显示文件时出错: {e}")
+        # 降级方案
+        if os.name == 'nt':
             subprocess.run(["type", str(file_path)], shell=True, check=True)
-    else:  # Linux/Mac
-        subprocess.run(["cat", str(file_path)], check=True)
+        else:
+            subprocess.run(["cat", str(file_path)], check=True)
 
 def main():
     parser = argparse.ArgumentParser(description="写入并展示小说章节")

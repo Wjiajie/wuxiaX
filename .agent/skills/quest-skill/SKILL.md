@@ -1,8 +1,6 @@
 ---
 name: quest-skill
 description: 用于记录、追踪与更新游戏主线及支线任务的技能系统。
-version: 1.0.0
-author: Antigravity
 ---
 
 # 任务追踪系统 (Quest System)
@@ -16,5 +14,8 @@ author: Antigravity
 3. **因果联动**：将任务状态与 `world-logic/references/causality_chain.md` 进行关联。
 
 ## 交互准则
-- 每次生成剧情前，必须读取 `references/quest_log.md`。
-- 剧情中涉及的关键抉择，必须即时反馈至任务状态。
+- 每次生成剧情前，必须读取 `references/quest_log.md` 以获知当前的因果节点。
+- 剧情生成后，若涉及任务状态变更或新任务开启，必须调用 `scripts/quest_manager.py`：
+  - 更新状态：`python .agent/skills/quest-skill/scripts/quest_manager.py --update "任务名" --status "已完成/已失败" --progress "具体进度描述"`
+  - 添加新任务：`python .agent/skills/quest-skill/scripts/quest_manager.py --add "新任务名" --category "Main/Side" --desc "任务描述" --relations "相关人物/地点"`
+- 剧情中涉及的关键抉择，必须通过上述脚本即时反馈至任务状态。

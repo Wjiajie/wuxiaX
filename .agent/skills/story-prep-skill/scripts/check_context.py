@@ -29,13 +29,25 @@ def get_nearby_npcs(location):
     path = SKILLS_DIR / "npc-skill" / "references" / "npc_list.md"
     if not path.exists():
         return ""
-    
+
     content = path.read_text(encoding="utf-8")
-    # 寻找主角队友
-    teammates = re.findall(r"### \d+\. (.*?)\n.*?好感度\*\*：(\d+ \(.*?\))", content, re.S)
-    
-    # 这里的 location 匹配逻辑可以更复杂，目前示例简单化
-    return "\n[附近/在队 NPC]\n" + "\n".join([f"- {t[0]}: 好感度 {t[1]}" for t in teammates])
+    # 改进正则匹配：按块分割或限制匹配范围
+    # 匹配每个 NPC 块，提取姓名和好感度
+    # 只显示好感度非 0 或明确为队友的 NPC
+    npc_blocks = re.findall(r"### (?:[\d\.]+)?\s*(.*?)\n(.*?)(?=\n###|\n---|$)", content, re.S)
+
+    found_npcs = []
+    for name, block in npc_blocks:
+        goodwill_match = re.search(r"好感度\*\*：(\d+)", block)
+        if goodwill_match:
+            value = int(goodwill_match.group(1))
+            if value != 0:
+                found_npcs.append(f"- {name.strip()}: 好感度 {value}")
+
+    if not found_npcs:
+        return "\n[附近/在队 NPC]\n- 无"
+
+    return "\n[附近/在队 NPC]\n" + "\n".join(found_npcs)
 
 def get_environment_info(location):
     path = SKILLS_DIR / "world-logic" / "references" / "spatial_nodes.md"
@@ -50,6 +62,12 @@ def get_environment_info(location):
     return ""
 
 def main():
+    # 强制设置 stdout 编码为 utf-8 以支持特殊字符和中文输出
+    if os.name == 'nt':
+        import sys
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
     print(">>> 正在执行故事生成前置校测...\n")
     
     p_status = get_protagonist_status()
