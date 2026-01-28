@@ -2,45 +2,36 @@ import os
 import sys
 import argparse
 import subprocess
+import textwrap
 from pathlib import Path
 
 # 定义根路径
 BASE_DIR = Path(__file__).parent.parent.parent.parent.parent
 CHAPTERS_DIR = BASE_DIR / "history" / "chapters"
+MANAGER_SCRIPT = BASE_DIR / ".agent" / "skills" / "game-manager-skill" / "scripts" / "manager.py"
 
 def ensure_dir():
     if not CHAPTERS_DIR.exists():
         CHAPTERS_DIR.mkdir(parents=True, exist_ok=True)
 
-def write_and_verify(chapter_num, content):
+def write_and_verify(chapter_num, content, mode="w"):
     ensure_dir()
     file_path = CHAPTERS_DIR / f"chapter_{chapter_num}.txt"
-    
-    # 1. 尝试写入
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
-    
-    # 2. 校验是否存在且不为空
-    if file_path.exists() and file_path.stat().st_size > 0:
-        return True, file_path
-    return False, file_path
 
-import textwrap
+    # 写入内容 (w 为覆盖, a 为追加)
+    with open(file_path, mode, encoding="utf-8") as f:
+        f.write(content)
+
+    return file_path.exists(), file_path
 
 def display_native(file_path):
-    # 直接在 Python 中读取并打印，以更好地处理编码
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-            # 针对 Windows 环境，尝试强制输出为 utf-8
             if os.name == 'nt':
-                import sys
                 import io
-                # 重新包装 stdout 以支持 utf-8 强制输出
                 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
-            # 为移动端优化：自动换行处理
-            # 考虑到中文字符宽度，设置较窄的换行宽度（如 25）
             wrapped_content = ""
             for line in content.splitlines():
                 if line.strip():
@@ -51,42 +42,82 @@ def display_native(file_path):
             print(wrapped_content)
     except Exception as e:
         print(f"!!! 读取或显示文件时出错: {e}")
-        # 降级方案
-        if os.name == 'nt':
-            subprocess.run(["type", str(file_path)], shell=True, check=True)
-        else:
-            subprocess.run(["cat", str(file_path)], check=True)
+
+def run_manager_check(file_path):
+    """调用 manager.py 进行质量与字数校验"""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # 将内容通过命令行传递给 manager.py 进行校验
+        # 注意：对于超长文本，命令行传参可能有上限，此处使用 subprocess 的 stdin 或直接在 Python 内部导入校验逻辑
+        # 考虑到代码复用，我们这里尝试直接导入 manager 逻辑或调用脚本
+        result = subprocess.run(
+            [sys.executable, str(MANAGER_SCRIPT), "--check-story", content],
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
+        )
+        print(result.stdout)
+        return result.returncode == 0
+    except Exception as e:
+        print(f"!!! 校验过程发生异常: {e}")
+        return False
 
 def main():
-    parser = argparse.ArgumentParser(description="写入并展示小说章节")
+    parser = argparse.ArgumentParser(description="写入并展示小说章节 (支持分段追加与万言校验)")
     parser.add_argument("--chapter", type=str, help="章节编号")
     parser.add_argument("--content", type=str, help="章节内容")
+    parser.add_argument("--append", action="store_true", help="追加模式 (不展示内容，默认行为)")
+    parser.add_argument("--full", action="store_true", help="全量覆盖模式 (慎用，会抹除已有段落)")
+    parser.add_argument("--finalize", action="store_true", help="完结并校验展示全文")
     parser.add_argument("--test", action="store_true", help="运行测试模式")
-    
+
     args = parser.parse_args()
-    
+
     if args.test:
         print(">>> 运行测试模式...")
-        success, path = write_and_verify("test", "这是一段测试文字。功不唐捐，玉汝于成。")
+        success, path = write_and_verify("test", "这是一段测试文字。")
         if success:
-            print(f">>> 校验成功，文件位于：{path}\n")
             display_native(path)
-        else:
-            print(">>> 校验失败！")
         return
 
-    if not args.chapter or not args.content:
+    if not args.chapter:
         parser.print_help()
         return
 
-    success, path = write_and_verify(args.chapter, args.content)
-    if success:
-        # print(f"\n--- [章节 {args.chapter} 写入成功] ---\n")
-        display_native(path)
-        print("\n--- [完] ---")
-    else:
-        print(f"!!! 错误：章节 {args.chapter} 写入校验失败，请检查磁盘空间或权限。")
-        sys.exit(1)
+    file_path = CHAPTERS_DIR / f"chapter_{args.chapter}.txt"
+
+    # 处理内容写入
+    if args.content:
+        # 默认使用追加模式，除非显式指定 --full
+        mode = "w" if args.full else "a"
+        success, path = write_and_verify(args.chapter, args.content, mode)
+        if not success:
+            print(f"!!! 错误：章节 {args.chapter} 写入失败。")
+            sys.exit(1)
+
+        # 如果不是 finalize 模式，默认不展示全文（即视为追加段落）
+        if not args.finalize:
+            char_count = file_path.stat().st_size // 3 # 粗略估计中文字数
+            status = "已重置并写入" if args.full else "已追加"
+            print(f">>> 段落{status}。当前章节预览长度：约 {file_path.stat().st_size} 字节。")
+            return
+
+    # 处理最终校验与展示
+    if args.finalize:
+        if not file_path.exists():
+            print(f"!!! 错误：找不到章节文件 {file_path}")
+            sys.exit(1)
+
+        print(">>> 正在进行万言终审...")
+        if run_manager_check(file_path):
+            print("\n--- [万言第一回：终审通过，正式开讲] ---\n")
+            display_native(file_path)
+            print("\n--- [卷终] ---")
+        else:
+            print("\n[FAIL] 终审未通过！请继续扩充内容或修正略写占位符。")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

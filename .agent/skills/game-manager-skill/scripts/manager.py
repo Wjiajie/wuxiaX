@@ -205,6 +205,39 @@ class SkillManager:
         print("\n>>> 全局同步校验完成，江湖因果已锁定。")
         return True
 
+    def check_story_content(self, content):
+        """
+        文案质量校检：
+        1. 检测是否存在 (省略/略写/...) 等占位符。
+        2. 检测总字数是否达到 5,000 字标准。
+        """
+        errors = []
+
+        # 1. 占位符检测 (针对常见的中英文括号省略表达)
+        placeholders = [
+            r"\(.*?省略.*?\)", r"（.*?省略.*?）",
+            r"\(.*?略写.*?\)", r"（.*?略写.*?）",
+            r"\(.*?待续.*?\)", r"（.*?待续.*?）",
+            r"省略后续", r"后续细节", r"字细节"
+        ]
+        for pattern in placeholders:
+            if re.search(pattern, content):
+                errors.append(f"检测到占位符/略写痕迹：'{re.search(pattern, content).group()}'。请展开描写，严禁使用概括性描述替代正文。")
+
+        # 2. 字数检测
+        char_count = len(content)
+        if char_count < 5000:
+            errors.append(f"当前文案长度为 {char_count} 字，未达到 5,000 字的最低标准。请继续扩充细节、心理描写、环境烘托或支线对话。")
+
+        if errors:
+            print("\n[ERROR] 文案校验未通过：")
+            for err in errors:
+                print(f"  - {err}")
+            return False
+
+        print(f"\n[SUCCESS] 文案校验通过！总长度：{char_count} 字。")
+        return True
+
     def sync_protagonist_to_memory(self):
         """将主角当前状态快照同步至记忆库"""
         content = self.get_skill_data("protagonist-skill", "character_sheet.md")
@@ -253,6 +286,7 @@ if __name__ == "__main__":
     parser.add_argument("--sync", action="store_true", help="执行全局同步校验")
     parser.add_argument("--save", action="store_true", help="执行全量存档")
     parser.add_argument("--load", action="store_true", help="从最新存档读档")
+    parser.add_argument("--check-story", type=str, help="校验故事文案质量与长度")
 
     args = parser.parse_args()
     gm = SkillManager()
@@ -265,6 +299,9 @@ if __name__ == "__main__":
         gm.execute_full_save()
     elif args.load:
         gm.execute_full_load()
+    elif args.check_story:
+        if not gm.check_story_content(args.check_story):
+            sys.exit(1) # 校验失败退出码为 1
     else:
         # 默认测试：尝试读取主角卡
         sheet = gm.get_skill_data("protagonist-skill", "character_sheet.md")

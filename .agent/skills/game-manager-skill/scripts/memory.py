@@ -84,5 +84,5 @@ class GameMemory:
 
 if __name__ == "__main__":
     memory = GameMemory()
-    memory.add_long_term("江湖秘闻", "江未央击败了圣堂守卫", "守卫临终前交出了一枚染血的玉佩")
+    memory.add_long_term("江湖秘闻", "江未央击败了强敌", "强敌临终前交出了一枚染血的玉佩")
     print("记忆已铭刻。")

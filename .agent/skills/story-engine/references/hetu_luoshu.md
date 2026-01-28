@@ -19,7 +19,7 @@ function canObtainFragment(fragmentId, protagonist):
     # 检查特定条件
     match fragmentId:
         case "河图·乾位残片":
-            return protagonist.resonanceStrength >= 15
+            return True # 初始可能携带或在特定地点获得
         case "河图·坤位残片":
             return protagonist.questCompleted("石家任务线")
         case "河图·坎位残片":
@@ -55,7 +55,7 @@ fragment_status:
 
 collection_count: 0
 active_buffs: []
-next_clue: "圣堂石窟深处（完成觉醒后探索）"
+next_clue: "根据当前位置与背景探索初始线索"
 ```
 
 ## 碎片获取叙事模板
@@ -122,10 +122,10 @@ next_clue: "圣堂石窟深处（完成觉醒后探索）"
 - **狂≥50**：获取【河图·离位残片】时触发与火山守护者的战斗
 - **狷≥50**：可提前感知碎片陷阱，避免触发守护机制
 
-### 圣堂意志联动
-若主角已完成圣堂觉醒且共鸣强度≥20：
-- 所有河图碎片获取时，额外获得【圣堂记忆碎片】
-- 集齐全部碎片后，可解锁【圣堂传承者】隐藏结局线
+### 初始地联动
+若主角选择特定出生地（如圣堂石窟）：
+- 获取对应区域碎片时，额外获得【区域记忆残章】
+- 集齐全部碎片后，解锁基于出生地的【专属结局线】
 
 ## 触发流程
 
