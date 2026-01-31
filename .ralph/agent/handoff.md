@@ -1,11 +1,11 @@
 # Session Handoff
 
-_Generated: 2026-01-31 07:18:34 UTC_
+_Generated: 2026-01-31 07:51:36 UTC_
 
 ## Git Context
 
 - **Branch:** `main`
-- **HEAD:** 239deeb: chore: auto-commit before merge (loop primary)
+- **HEAD:** 858bfe6: chore: auto-commit before merge (loop primary)
 
 ## Tasks
 
@@ -18,13 +18,13 @@ Recently modified:
 - `.agent/skills/combat-engine/SKILL.md`
 - `.agent/skills/game-manager-skill/assets/game_memory.db`
 - `.agent/skills/game-manager-skill/assets/saves/wuxiaX.db`
-- `.agent/skills/game-manager-skill/scripts/__pycache__/memory.cpython-314.pyc`
-- `.agent/skills/game-manager-skill/scripts/manager.py`
-- `.agent/skills/game-manager-skill/scripts/memory.py`
 - `.agent/skills/npc-skill/SKILL.md`
+- `.agent/skills/npc-skill/references/beast_kings.md`
 - `.agent/skills/npc-skill/references/npc_list.md`
 - `.agent/skills/npc-skill/templates/npc_list.md`
 - `.agent/skills/protagonist-skill/references/character_sheet.md`
+- `.agent/skills/quest-skill/references/quest_log.md`
+- `.agent/skills/story-engine/SKILL.md`
 
 ## Next Session
 
