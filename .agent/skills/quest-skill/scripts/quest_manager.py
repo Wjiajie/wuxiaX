@@ -1,7 +1,13 @@
 import os
 import re
 import argparse
+import sys
+import io
 from pathlib import Path
+
+# 强制使用 UTF-8 编码以解决乱码问题
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 # 获取项目根目录
 SKILL_ROOT = Path(__file__).parent.parent

@@ -1,6 +1,6 @@
 ---
 name: world-logic
-description: 处理《河洛群侠传》MUD 文本江湖的空间节点系统（Spatial Node System）与时间轮转系统（Time-State System）。负责房间描述、方位导航、昼夜交替动作以及基于时间的事件触发。
+description: 负责构建宏大的武侠文本江湖。处理区域地理（Spatial Nodes）、门派势力（Sect System）与时间流转（Time-State）。核心职责包括维护世界观的一致性，确保 NPC、地理与门派信息的准确检索与调用。
 ---
 
 # 文本江湖：空间与时间逻辑 (World Logic)
@@ -9,7 +9,7 @@ description: 处理《河洛群侠传》MUD 文本江湖的空间节点系统（
 
 ## 1. 空间节点系统 (Spatial Node System)
 
-世界由相互连接的“房间（Room）”组成。每个导航动作（move north/south/east/west）都会改变当前所在的节点。
+世界由相互连接的“区域（Region）”组成。玩家通过指令在不同区域间穿梭，无需关注具体的东南西北方位。
 
 ### 核心属性
 - **环境描述 (Description)**：通过精炼的文字展现视觉感知。
@@ -18,9 +18,7 @@ description: 处理《河洛群侠传》MUD 文本江湖的空间节点系统（
 - **隐藏判定**：部分对象（如埋藏的铁石）需通过 `search` 或 `look` 动作发现。
 
 ### 地理档案参考
-- **区域划分**：具体房间细节见 [references/spatial_nodes.md](references/spatial_nodes.md)。
-- **核心中心**：拱石村、漱玉矶、大研镇、武当山、少林寺、天水城、名剑山庄、十万大山等。
-- **区域内容**：每个区域包含资源分布、常驻 NPC、相关势力等完整信息。
+详细的区域划分与内容设定，请直接参考 [references/spatial_nodes.md](references/spatial_nodes.md)。
 
 ## 2. 时间轮转系统 (Time-State System)
 
@@ -46,29 +44,8 @@ description: 处理《河洛群侠传》MUD 文本江湖的空间节点系统（
 定义了人格、善恶、势力及奇遇的底层逻辑，确保世界运行符合武侠逻辑。
 见 [references/world_rules.md](references/world_rules.md)。
 
-## 5. 蝴蝶效应与因果联动 (Butterfly Effect & Causality)
-> **必须遵守 (Mandatory)**
-生成剧情内容**之前**，必须执行以下检查流程：
-1. **检索因果链**: 读取 `world-logic/references/causality_chain.md`，检查当前场景或涉及人物是否存在已种下的“蝴蝶之种”。
-2. **判定连锁反应**:
-   - 若当前剧情处于“风暴预警”范围，强制触发对应的分支情节。
-   - 根据历史抉择的“因果值”，调整当前互动的难度、报酬或NPC态度。
-3. **记录新种**: 玩家做出重大决策后，必须立即在 `causality_chain.md` 中新增记录，并标记为“已种下”。
-4. **变局触发**: 当全局“因果值”累积达到特定阈值（如50），在当前章节强制嵌入“江湖大变局”叙事。
 
-## 6. 河图洛书碎片触发规则 (Hetu Luoshu Triggers)
-> **必须遵守 (Mandatory)**
-当主角进入碎片所在区域时，必须执行以下检查流程：
-1. **位置匹配**: 检查当前位置是否为碎片分布点（参照 `references/spatial_nodes.md` 中的碎片分布总览）。
-2. **条件判定**: 验证主角是否满足该碎片的前置条件（装备、属性、任务进度等）。
-3. **碎片叙事**: 若满足条件，从 `story-engine/references/hetu_luoshu.md` 读取对应碎片的专属叙事模板。
-4. **状态更新**:
-   - 将碎片添加至 `character_sheet.md` 背包。
-   - 应用碎片属性加成。
-   - 更新 `hetu_luoshu.md` 中的收集状态。
-5. **线索生成**: 若主角持有【河图·乾位残片】，在相邻区域存在未收集碎片时，生成感应描述。
-
-## 7. 门派势力系统 (Sect & Faction System)
+## 5. 门派势力系统 (Sect & Faction System)
 > **必须遵守 (Mandatory)**
 
 门派势力是江湖生态的核心组成部分，影响 NPC 行为、剧情走向和玩家声望。
@@ -90,6 +67,36 @@ description: 处理《河洛群侠传》MUD 文本江湖的空间节点系统（
 - 34 个主要门派的详细档案
 - 势力关系网络图
 - 核心武学与代表人物
+
+## 6. 信息检索协定 (Information Retrieval Protocol)
+> **必须遵守 (Mandatory)**
+
+当故事发展涉及以下要素时，**必须**优先检索对应的档案库，以确保世界观的连贯性：
+
+### 8.1 涉足新区域 (Entering Regions)
+当主角抵达或提及某个地名时：
+1. **检索目标**: `world-logic/references/spatial_nodes.md`
+2. **提取要素**:
+   - **环境特征**: 确保描写符合（如“雪山峭壁”不能写成“郁郁葱葱”）。
+   - **资源分布**: 确认该地特产（如“五毒虫”仅在南疆）。
+   - **兽王威胁**: 检查该区域是否有兽王盘踞（如“白马居”附近的狼王）。
+   - **常驻 NPC**: 确认谁是这里的地头蛇。
+
+### 8.2 遭遇 NPC (Encountering NPCs)
+当主角与 NPC 互动时：
+1. **检索目标**: `npc-skill/references/npc_list.md`
+2. **提取要素**:
+   - **身份与性格**: 确保言行一致。
+   - **美学与生理** (女性): 若涉及细致描写，必须引用档案中的“美学采样”与“生理快照”。
+   - **门派归属**: 确认其背后的势力立场。
+
+### 8.3 门派交互 (Sect Interactions)
+当主角与门派发生关联（拜访、冲突、任务）时：
+1. **检索目标**: `world-logic/references/sect_list.md`
+2. **提取要素**:
+   - **所处据点**: 确认门派的具体位置。
+   - **外交立场**: 确认该门派是正是邪，与主角当前声望是否冲突。
+   - **核心武学**: 确保战斗或切磋时使用的招式符合门派传承。
 
 ## 资源参考
 - [空间节点数据](references/spatial_nodes.md)

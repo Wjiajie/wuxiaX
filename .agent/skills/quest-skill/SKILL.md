@@ -11,7 +11,7 @@ description: 用于记录、追踪与更新游戏主线及支线任务的技能�
 ## 核心职责
 1. **任务记录**：在 `references/quest_log.md` 中维护主线与支线列表。
 2. **状态更新**：根据剧情推演结果，实时更新任务的【触发】、【进行中】、【已完成】或【已失败】状态。
-3. **因果联动**：将任务状态与 `world-logic/references/causality_chain.md` 进行关联。
+
 
 ## 交互准则
 - 每次生成剧情前，必须读取 `references/quest_log.md` 以获知当前的因果节点。

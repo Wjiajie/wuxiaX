@@ -182,7 +182,7 @@ class SkillManager:
         # 3. 清空历史章节
         chapters_dir = self.base_dir / "history" / "chapters"
         if chapters_dir.exists():
-            for chapter_file in chapters_dir.glob("*.txt"):
+            for chapter_file in chapters_dir.glob("*.md"):
                 chapter_file.unlink()
             print("  - 已粉碎所有历史残章。")
 

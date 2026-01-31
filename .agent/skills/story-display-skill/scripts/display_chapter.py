@@ -16,7 +16,7 @@ def ensure_dir():
 
 def write_and_verify(chapter_num, content, mode="w"):
     ensure_dir()
-    file_path = CHAPTERS_DIR / f"chapter_{chapter_num}.txt"
+    file_path = CHAPTERS_DIR / f"chapter_{chapter_num}.md"
 
     # 写入内容 (w 为覆盖, a 为追加)
     with open(file_path, mode, encoding="utf-8") as f:
@@ -86,7 +86,7 @@ def main():
         parser.print_help()
         return
 
-    file_path = CHAPTERS_DIR / f"chapter_{args.chapter}.txt"
+    file_path = CHAPTERS_DIR / f"chapter_{args.chapter}.md"
 
     # 处理内容写入
     if args.content:
