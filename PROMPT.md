@@ -1,35 +1,44 @@
-# 核心逻辑改进任务清单 (TODO)
+# 任务：完善地理区域与门派架构 (World Logic & Sect Integrity)
 
-## 1. 故事生成前置工作 (Preparation Skill)
-- [x] 实现专门的 `story-prep-skill`。
-- [x] 编写 Python 脚本，在故事生成前自动检测：
-    - 主角状态 (HP, 内力, 位置, 属性等)。
-    - 涉及 NPC 的当前状态与好感度。
-    - 当前所处的环境因素 (地理描述、时间、特殊事件标记)。
-- [x] 确保 `story-engine` 在生成前调用此 skill 获取上下文快照。
+## 背景
+NPC 名录 (`npc_list.md`) 已经通过融合《逸剑风云决》与《河洛群侠传》得到了极大扩充，但底层的地理空间 (`spatial_nodes.md`) 和门派设定尚未同步更新，导致新加入的 NPC 缺乏对应的环境支撑。
 
-## 2. 存档系统进化 (Database-based Save)
-- [x] 编写 Python 脚本遍历所有 Agent Skills 的 `references/` 数据表。
-- [x] 将所有 Skill 状态持久化存储到本地数据库文件 (如 SQLite) 而非分散的文本文件。
-- [x] 统一存档元数据结构，包含时间戳、章节进度及全局环境摘要。
+## 目标
+根据最新的 NPC 数据，反向推导并补全地理与门派信息，构建一个逻辑自洽的宏大江湖。
 
-## 3. 读档与差异同步 (Database-based Load & Sync)
-- [x] 编写 Python 脚本读取最新的本地数据库文件。
-- [x] **差异判定机制**：对比数据库中的状态与当前各 Skill 目录下的文件实体：
-    - 若发现差异 (如文件被手动修改 or 过时)，以数据库内容为准进行强制同步更新。
-    - 记录同步日志，确保内存与实体文件完全一致。
+## 执行步骤
 
-## 4. 小说情节展示与全局检索 (Display Skill & Global Sync)
-- [x] 实现专门的 `story-display-skill` 负责终端输出。
-- [x] **生成校验逻辑**：
-    1. 首先将情节写入本地 `.txt` 文件。
-    2. 检测本地文件是否真正生成并落盘。
-    3. 若生成失败 (可能是磁盘 I/O 或权限问题)，需自动重试或抛出明确错误。
-- [x] **终端完整展示**：在确认文件生成完成后，优先使用终端原生指令 (如 Windows 的 `type` 或 `Get-Content`) 完整输出该文件内容。此方式可规避 AI 文本输出长度限制，确保万言情节 1:1 完整呈现在终端。
-- [x] **全局同步触发**：修改 `game-manager-skill`，触发“章节结束同步”钩子。每当一段情节生成并展示后，该 skill 必须主动检索所有其他 skills，判断是否有属性、关系、物品或环境信息需要随之更新。
+### 1. 区域信息补全
+**目标文件**: `.agent/skills/world-logic/references/spatial_nodes.md`
+**数据源**: `.agent/skills/npc-skill/templates/npc_list.md`
 
-## 5. 运转机制文档优化 (CLAUDE.md Optimization)
-- [x] 重构 `CLAUDE.md`：
-    - 仅保留全局架构、核心运转机制、指令系统等最高层级的准则。
-    - 将具体的业务逻辑、数值公式、详细的流程描述迁移至对应 Skill 的 `SKILL.md` 中。
-    - 简化后的 `CLAUDE.md` 应作为“规则指南针”，而各 Skill 则是“专业手册”。
+遍历 `npc_list.md` 中涉及的所有地理标签（如“中原”、“西北”、“南疆”等），在 `spatial_nodes.md` 中补充或完善对应条目。
+每个区域需包含以下维度：
+- **资源 (Resources)**: 该区域特有的采集物（参照河洛设定，如玄铁、毒虫、特产酒类）。
+- **相关 NPC (Related NPCs)**: 列出常驻此区域的核心 NPC 列表（自动同步 `npc_list.md` 的归属）。
+- **相关势力 (Related Factions)**: 该区域包含的门派、村落或城镇（如天水城之于神鹰门）。
+
+### 2. 建立门派档案
+**目标文件**: `.agent/skills/world-logic/references/sect_list.md` (新增)
+
+创建一个全新的门派档案文件，详细描述江湖中的各大势力：
+- **核心门派**: 武当、少林、丐帮、名剑山庄、神鹰门、五仙教、俏梦阁、赋闲书院、淘石帮。
+- **Mod/隐世势力**: 圣堂、长生殿、雪山派、西域魔教。
+- **档案结构**:
+  - 门派名称与宗旨
+  - 所在区域 (Linked Spatial Node)
+  - 核心武学 (Linked Martial Arts)
+  - 代表人物 (Linked NPCs)
+  - 势力关系 (友好/敌对)
+
+### 3. 更新 Skill 引用
+**目标文件**: `.agent/skills/world-logic/SKILL.md`
+
+在 `world-logic` 的 SKILL 定义中增加对新数据的引用：
+- 在“地理档案参考”部分，明确 `spatial_nodes.md` 已包含 NPC 和资源分布。
+- 新增“门派势力系统”章节，引用 `references/sect_list.md`，说明门派对江湖生态的影响。
+
+## 验收标准
+- `spatial_nodes.md` 覆盖所有 NPC 所在的区域，无“悬空”角色。
+- `sect_list.md` 包含至少 30 个主要门派的详细设定。
+- 所有地理和门派描述均符合《逸剑》与《河洛》的融合世界观。
