@@ -16,6 +16,7 @@ NPC 名录 (`npc_list.md`) 已经通过融合《逸剑风云决》与《河洛�
 每个区域需包含以下维度：
 - **资源 (Resources)**: 该区域特有的采集物（参照河洛设定，如玄铁、毒虫、特产酒类）。
 - **相关 NPC (Related NPCs)**: 列出常驻此区域的核心 NPC 列表（自动同步 `npc_list.md` 的归属）。
+- **兽王分布 (Beast Kings)**: 根据 `npc-skill/references/beast_kings.md`，将兽王标记在对应的区域节点中，作为危险或探索要素。
 - **相关势力 (Related Factions)**: 该区域包含的门派、村落或城镇（如天水城之于神鹰门）。
 
 ### 2. 建立门派档案
