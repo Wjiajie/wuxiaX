@@ -200,6 +200,7 @@ class SkillManager:
         print(">>> 正在触发全局同步校验...")
         if self.sync_protagonist_to_memory():
             print("  - 主角[江未央]状态同步成功。")
+        self.sync_intelligence_system()
 
         # 可以在此扩展其他 NPC 或物品的同步逻辑
         print("\n>>> 全局同步校验完成，江湖因果已锁定。")
@@ -255,6 +256,25 @@ class SkillManager:
             print(f"  - 已捕捉神识快照：位置[{data['location']}] 气血[{data['hp']}]")
             return True
         return False
+
+    def sync_intelligence_system(self):
+        """
+        情报系统同步钩子：检查并更新情报系统状态
+        """
+        print(">>> 正在同步江湖情报系统...")
+
+        # 获取最新情报列表（通过调用 intelligence_manager.py）
+        import subprocess
+        result = subprocess.run(
+            ["python", ".agent/skills/intelligence-skill/scripts/intelligence_manager.py", "--list"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8"
+        )
+
+        print(f"  - 情报系统状态：{result.stdout[:200] if result.stdout else '无情报'}")
+        print("\n>>> 江湖情报同步完成。")
+        return True
 
     def process_story_event(self, event_type, description, impact_data=None):
         """

@@ -31,6 +31,9 @@ description: 负责构建宏大的武侠文本江湖。处理区域地理（Spat
 ### 逻辑触发
 - 每次玩家执行移动或长时间动作，时钟推进。
 - 具体时间影响表见 [references/time_events.md](references/time_events.md)。
+- 每日卯时（日出）自动触发情报更新：
+  `python .agent/skills/intelligence-skill/scripts/intelligence_manager.py --update_daily`
+- 玩家可通过"查看情报"指令手动获取最新情报
 
 ## 3. 交互指令集 (Interaction Parser)
 
@@ -103,3 +106,4 @@ description: 负责构建宏大的武侠文本江湖。处理区域地理（Spat
 - [门派势力档案](references/sect_list.md)
 - [时间事件逻辑](references/time_events.md)
 - [江湖律令法则](references/world_rules.md)
+- [情报系统](../intelligence-skill/SKILL.md)
