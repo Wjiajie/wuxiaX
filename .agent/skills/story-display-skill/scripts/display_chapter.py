@@ -9,6 +9,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent.parent.parent.parent
 CHAPTERS_DIR = BASE_DIR / "history" / "chapters"
 MANAGER_SCRIPT = BASE_DIR / ".agent" / "skills" / "game-manager-skill" / "scripts" / "manager.py"
+TUI_VIEWER_SCRIPT = BASE_DIR / ".agent" / "skills" / "story-display-skill" / "scripts" / "tui_viewer.py"
 
 def ensure_dir():
     if not CHAPTERS_DIR.exists():
@@ -64,6 +65,20 @@ def run_manager_check(file_path):
         print(f"!!! 校验过程发生异常: {e}")
         return False
 
+def run_tui_viewer(chapter_num: int):
+    """启动 TUI 阅读器"""
+    try:
+        # 使用 py 启动器确保正确的 Python 环境
+        result = subprocess.run(
+            ["py", str(TUI_VIEWER_SCRIPT), "--chapter", str(chapter_num)],
+            capture_output=False,
+        )
+        return result.returncode == 0
+    except Exception as e:
+        print(f"!!! 启动 TUI 查看器失败: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="写入并展示小说章节 (支持分段追加与万言校验)")
     parser.add_argument("--chapter", type=str, help="章节编号")
@@ -72,6 +87,7 @@ def main():
     parser.add_argument("--full", action="store_true", help="全量覆盖模式 (慎用，会抹除已有段落)")
     parser.add_argument("--finalize", action="store_true", help="完结并校验展示全文")
     parser.add_argument("--test", action="store_true", help="运行测试模式")
+    parser.add_argument("--no-tui", action="store_true", help="禁用 TUI 模式，使用传统文本展示")
 
     args = parser.parse_args()
 
@@ -113,7 +129,14 @@ def main():
         print(">>> 正在进行万言终审...")
         if run_manager_check(file_path):
             print("\n--- [万言第一回：终审通过，正式开讲] ---\n")
-            display_native(file_path)
+
+            # 默认使用 TUI 模式，除非显式禁用
+            if args.no_tui:
+                display_native(file_path)
+            else:
+                print("[gold]正在启动沉浸式阅读器...[/gold]\n")
+                run_tui_viewer(args.chapter)
+
             print("\n--- [卷终] ---")
         else:
             print("\n[FAIL] 终审未通过！请继续扩充内容或修正略写占位符。")

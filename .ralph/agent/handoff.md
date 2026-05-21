@@ -15,7 +15,6 @@ _No task history available._
 
 Recently modified:
 
-- `.agent/skills/combat-engine/SKILL.md`
 - `.agent/skills/game-manager-skill/assets/game_memory.db`
 - `.agent/skills/game-manager-skill/assets/saves/wuxiaX.db`
 - `.agent/skills/npc-skill/SKILL.md`

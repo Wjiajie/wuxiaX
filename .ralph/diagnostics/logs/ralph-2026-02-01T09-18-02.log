@@ -1,0 +1,10 @@
+2026-02-01T01:18:02.369861Z  WARN ralph: Loop locking not supported on this platform, running without lock
+2026-02-01T01:18:02.492405Z  WARN ralph::loop_runner: Failed to record loop start in history: I/O error: File locking not supported on this platform
+2026-02-01T01:18:02.492608Z  INFO ralph_core::event_loop: Memory injection check: enabled=true, inject=Auto, workspace_root="C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX"
+2026-02-01T01:18:02.492633Z  INFO ralph_core::event_loop: Looking for memories at: "C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX\\.ralph/agent/memories.md" (exists: false)
+2026-02-01T01:18:02.492969Z  INFO ralph_core::event_loop: Successfully loaded 0 memories from store
+2026-02-01T01:18:02.492988Z  INFO ralph_core::event_loop: Memory store is empty - no memories to inject
+2026-02-01T01:18:10.585443Z  INFO ralph_tui::app: Ctrl+C detected, signaling main loop
+2026-02-01T01:18:10.585942Z  INFO ralph_core::event_loop: Wrapping up: interrupted. 0 iterations in 8s. reason=interrupted iterations=0 duration=8s
+2026-02-01T01:18:10.613914Z  WARN ralph::loop_runner: Failed to record termination in history: I/O error: File locking not supported on this platform
+2026-02-01T01:18:10.613940Z  WARN ralph::loop_runner: Failed to deregister loop from registry: File locking not supported on this platform

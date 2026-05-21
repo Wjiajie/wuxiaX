@@ -31,9 +31,6 @@ description: 负责构建宏大的武侠文本江湖。处理区域地理（Spat
 ### 逻辑触发
 - 每次玩家执行移动或长时间动作，时钟推进。
 - 具体时间影响表见 [references/time_events.md](references/time_events.md)。
-- 每日卯时（日出）自动触发情报更新：
-  `python .agent/skills/intelligence-skill/scripts/intelligence_manager.py --update_daily`
-- 玩家可通过"查看情报"指令手动获取最新情报
 
 ## 3. 交互指令集 (Interaction Parser)
 
@@ -106,4 +103,57 @@ description: 负责构建宏大的武侠文本江湖。处理区域地理（Spat
 - [门派势力档案](references/sect_list.md)
 - [时间事件逻辑](references/time_events.md)
 - [江湖律令法则](references/world_rules.md)
-- [情报系统](../intelligence-skill/SKILL.md)
+- [世界叙事库](references/world_narratives.md)
+- [章节叙事库](references/chapter_narratives.md)
+
+---
+
+## 7. 叙事初始化系统 (Narrative Initialization)
+
+游戏开始时，通过叙事初始化脚本从叙事库中随机抽取组合，生成游戏的叙事基调。
+
+### 7.1 世界级叙事
+定义了游戏的宏观背景、长线冲突和核心势力动态。见 [world_narratives.md](references/world_narratives.md)。
+
+当前收录 10 种世界叙事母题：
+- 壹、朝堂与江湖
+- 贰、门派传承之争
+- 叁、民族存亡之秋
+- 肆、宝藏与秘境
+- 伍、仇杀与因果
+- 陆、易代武林
+- 柒、正邪终极之战
+- 捌、武林新一代
+- 玖、隐秘组织与幕后黑手
+- 拾、天道轮回·因果循环
+
+### 7.2 章节级叙事
+定义了主角的初始故事线和发展方向。见 [chapter_narratives.md](references/chapter_narratives.md)。
+
+当前收录 20 种章节叙事类型，涵盖：
+- 失落绝学的复兴之路
+- 门派的隐秘历史
+- 江湖公子的崛起
+- 仇人之子的两难
+- 江湖阴谋的初现
+- 等等...
+
+### 7.3 初始化流程
+
+游戏重置后，**必须**执行叙事初始化：
+
+```bash
+python .agent/skills/world-logic/scripts/narrative_initializer.py
+```
+
+该脚本将：
+1. 随机选取一条世界叙事
+2. 随机选取一条章节叙事
+3. 生成初始线索
+4. 将组合叙事写入 `protagonist-skill/references/character_sheet.md`
+
+### 7.4 叙事检索协定
+在生成剧情时，**必须**先读取 character_sheet.md 中的"初始叙事上下文"，确保：
+- 世界叙事的核心势力和长线伏笔得到体现
+- 章节叙事的发展方向被正确延续
+- 初始线索成为玩家故事的自然起点

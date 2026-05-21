@@ -1,0 +1,28 @@
+2026-02-13T14:21:24.705552Z  WARN ralph: Loop locking not supported on this platform, running without lock
+2026-02-13T14:21:24.819552Z  WARN ralph::loop_runner: Failed to record loop start in history: I/O error: File locking not supported on this platform
+2026-02-13T14:21:24.819899Z  INFO ralph_core::event_loop: Memory injection check: enabled=true, inject=Auto, workspace_root="C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX"
+2026-02-13T14:21:24.819955Z  INFO ralph_core::event_loop: Looking for memories at: "C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX\\.ralph/agent/memories.md" (exists: false)
+2026-02-13T14:21:24.820620Z  INFO ralph_core::event_loop: Successfully loaded 0 memories from store
+2026-02-13T14:21:24.820631Z  INFO ralph_core::event_loop: Memory store is empty - no memories to inject
+2026-02-13T14:26:24.969223Z  WARN ralph_adapters::cli_executor: Execution timeout reached, sending SIGTERM timeout_secs=300
+2026-02-13T14:26:25.030261Z  INFO ralph_core::event_loop: Memory injection check: enabled=true, inject=Auto, workspace_root="C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX"
+2026-02-13T14:26:25.030301Z  INFO ralph_core::event_loop: Looking for memories at: "C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX\\.ralph/agent/memories.md" (exists: false)
+2026-02-13T14:26:25.030312Z  INFO ralph_core::event_loop: Successfully loaded 0 memories from store
+2026-02-13T14:26:25.030314Z  INFO ralph_core::event_loop: Memory store is empty - no memories to inject
+2026-02-13T14:30:38.233752Z  INFO ralph_core::event_loop: Memory injection check: enabled=true, inject=Auto, workspace_root="C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX"
+2026-02-13T14:30:38.233793Z  INFO ralph_core::event_loop: Looking for memories at: "C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX\\.ralph/agent/memories.md" (exists: false)
+2026-02-13T14:30:38.233803Z  INFO ralph_core::event_loop: Successfully loaded 0 memories from store
+2026-02-13T14:30:38.233806Z  INFO ralph_core::event_loop: Memory store is empty - no memories to inject
+2026-02-13T14:34:24.581566Z  INFO ralph_core::event_loop: Memory injection check: enabled=true, inject=Auto, workspace_root="C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX"
+2026-02-13T14:34:24.581612Z  INFO ralph_core::event_loop: Looking for memories at: "C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX\\.ralph/agent/memories.md" (exists: false)
+2026-02-13T14:34:24.581623Z  INFO ralph_core::event_loop: Successfully loaded 0 memories from store
+2026-02-13T14:34:24.581625Z  INFO ralph_core::event_loop: Memory store is empty - no memories to inject
+2026-02-13T14:39:24.661829Z  WARN ralph_adapters::cli_executor: Execution timeout reached, sending SIGTERM timeout_secs=300
+2026-02-13T14:39:24.714420Z  INFO ralph_core::event_loop: Memory injection check: enabled=true, inject=Auto, workspace_root="C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX"
+2026-02-13T14:39:24.714464Z  INFO ralph_core::event_loop: Looking for memories at: "C:\\Users\\jiaji\\Documents\\github-project\\wuxiaX\\.ralph/agent/memories.md" (exists: false)
+2026-02-13T14:39:24.714475Z  INFO ralph_core::event_loop: Successfully loaded 0 memories from store
+2026-02-13T14:39:24.714478Z  INFO ralph_core::event_loop: Memory store is empty - no memories to inject
+2026-02-13T14:44:24.843091Z  WARN ralph_adapters::cli_executor: Execution timeout reached, sending SIGTERM timeout_secs=300
+2026-02-13T14:44:24.883182Z  INFO ralph_core::event_loop: Wrapping up: consecutive_failures. 5 iterations in 23m 0s. reason=consecutive_failures iterations=5 duration=23m 0s
+2026-02-13T14:44:24.926492Z  WARN ralph::loop_runner: Failed to record completion in history: I/O error: File locking not supported on this platform
+2026-02-13T14:44:24.926524Z  WARN ralph::loop_runner: Failed to deregister loop from registry: File locking not supported on this platform
